@@ -38,8 +38,9 @@ El dato viaja de la siguiente manera:
 ## 📊 Resultado Visual
 
 ![Gráfico del Reporte](export/reporte_top10_pilotos.png)
+![Gráfico del Reporte](export/reporte_top10_constructores.png)
 
-*(Este gráfico se actualiza automáticamente al correr el script)*
+*(Estos gráficos se actualizan automáticamente al correr el script)*
 
 ---
 **Autor:** Josué - Analista de Datos en formación 🦁
