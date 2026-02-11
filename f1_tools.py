@@ -1,49 +1,65 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import os  # Necesario para crear carpetas y rutas
 
-# --- HERRAMIENTA 1: LIMPIEZA ---
-def limpiar_datos(df):
-    """Rellena nulos con 0 y convierte a enteros."""
-    
-    # 1. COMPLETA ESTA LÍNEA (Usa fillna y astype)
-    df_limpio = df.fillna(0).astype(int) 
-    
-    return df_limpio
 
-# --- HERRAMIENTA 2: LÓGICA DE NEGOCIO ---
-def obtener_campeon(df):
-    """Calcula acumulado y saca al ganador."""
-    
-    # 2. CALCULA EL ACUMULADO
-    df_acumulado = df.cumsum()
-    
-    # 3. ENCUENTRA AL GANADOR (Fila final)
-    ultima_fila = df_acumulado.iloc[-1]
-    
-    ganador = ultima_fila.idxmax()
-    puntos = ultima_fila.max()
-    
-    return df_acumulado, ganador, puntos
+def procesar_datos(df_raw):
+    """
+    Convierte los datos crudos en una tabla acumulativa (Historia completa).
+    """
+    if df_raw.empty:
+        print("❌ Error: No llegaron datos.")
+        return None
 
-# --- HERRAMIENTA 3: EXPORTAR (La más importante ahora) ---
-def guardar_todo(df, nombre_archivo, titulo_grafico):
-    """Guarda CSV y PNG en la carpeta 'export/'."""
-    
-    # OJO AQUÍ: Definimos la ruta para que caiga en la carpeta correcta
+    # 1. Pivotar (Años vs Nombres)
+    df_pivot = df_raw.pivot_table(
+        index="temporada", columns="nombre", values="puntos", aggfunc="sum"
+    ).fillna(0)
+    # 2. Acumular (Suma histórica)
+    df_acumulado = df_pivot.cumsum()
+
+    return df_acumulado
+
+
+def generar_salidas(df, titulo_grafico, nombre_archivo):
+    """
+    Guarda el CSV, genera el gráfico, guarda el PNG y lo muestra.
+    """
+    if df is None:
+        return
+
+    # --- 1. PREPARAR CARPETA ---
+    if not os.path.exists("export"):
+        os.makedirs("export")
+        print("📁 Carpeta 'export' creada.")
+
+    # --- 2. GUARDAR EXCEL/CSV ---
     ruta_csv = f"export/{nombre_archivo}.csv"
-    ruta_img = f"export/{nombre_archivo}.png"
-    
-    # 4. GUARDA EL CSV (Usa la variable ruta_csv)
-    df.to_csv(ruta_csv, sep=';')
-    print(f"✅ CSV guardado en: {ruta_csv}")
+    df.to_csv(ruta_csv)
+    print(f"💾 Datos guardados en: {ruta_csv}")
 
-    # 5. GENERA Y GUARDA EL GRÁFICO
-    plt.figure(figsize=(10,6))
-    df.plot(linewidth=2)
-    plt.title(titulo_grafico)
-    plt.grid(True)
-    
-    # Guarda la imagen en la carpeta export
-    plt.savefig(ruta_img, dpi=300, bbox_inches='tight')
-    plt.close() # Cierra el gráfico para liberar memoria
-    print(f"📸 Imagen guardada en: {ruta_img}")
+    # --- 3. GENERAR GRÁFICO ---
+    print(f"📈 Generando gráfico: {titulo_grafico}...")
+
+    # Crear figura y ejes
+    plt.figure(figsize=(14, 7))  # Tamaño grande para HD
+
+    # Dibujar las líneas (Iteramos sobre las columnas para control total)
+    for columna in df.columns:
+        plt.plot(df.index, df[columna], label=columna, linewidth=2)
+
+    # Decoración
+    plt.title(titulo_grafico, fontsize=16)
+    plt.ylabel("Puntos Acumulados (Historia)", fontsize=12)
+    plt.xlabel("Temporada", fontsize=12)
+    plt.grid(True, linestyle="--", alpha=0.5)
+    plt.legend(bbox_to_anchor=(1.01, 1), loc="upper left")  # Leyenda afuera
+    plt.tight_layout()  # Ajustar márgenes
+
+    # --- 4. GUARDAR PNG ---
+    ruta_png = f"export/{nombre_archivo}.png"
+    plt.savefig(ruta_png, dpi=300)  # dpi=300 es Alta Calidad
+    print(f"📸 Imagen guardada en: {ruta_png}")
+
+    # --- 5. MOSTRAR ---
+    plt.show()

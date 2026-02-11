@@ -16,35 +16,52 @@ opcion = input("Ingrese P para Pilotos o C para Constructores: ").upper()
 
 if opcion == "P":
     query = """
-    SELECT resultados.id_carrera, pilotos.nombre, resultados.puntos
-    FROM resultados 
-    JOIN pilotos ON resultados.id_piloto = pilotos.id_piloto
+    SELECT r.year AS temporada, d.forename || ' ' || d.surname AS nombre, SUM(res.points) AS puntos
+    FROM results res 
+    JOIN drivers d ON res.driverId = d.driverId
+    JOIN races r ON res.raceId = r.raceId
+    WHERE d.driverID IN (
+        SELECT driverId 
+        FROM results 
+        GROUP BY driverId 
+        ORDER BY SUM(points) DESC 
+        LIMIT 10
+    )
+    GROUP BY r.year, d.driverId
+    ORDER BY r.year ASC
     """
-    titulo_archivo = 'reporte_piloto'
-    titulo_grafico = 'Campeonato de Pilotos'
-    
+    titulo_archivo = "reporte_top10_pilotos"
+    titulo_grafico = "Top 10 Pilotos de la Historia (Por Puntos)"
+
 elif opcion == "C":
-    query = """ SELECT resultados.id_carrera, pilotos.equipo AS nombre, resultados.puntos
-    FROM resultados
-    JOIN pilotos ON resultados.id_piloto = pilotos.id_piloto """
-    
-    titulo_archivo = 'reporte_constructores'
-    titulo_grafico = 'Campeonato de Constructores'
-    
+    query = """ SELECT r.year AS temporada, c.name AS nombre, SUM(res.points) AS puntos
+    FROM results res
+    JOIN constructors c ON res.constructorId = c.constructorId 
+    JOIN races r ON res.raceId = r.raceId
+    WHERE c.constructorId IN (
+        SELECT constructorId FROM results
+        GROUP BY constructorId ORDER BY SUM(points) DESC
+        LIMIT 10)
+        GROUP BY r.year, c.constructorId
+        ORDER BY r.year ASC
+        """
+
+    titulo_archivo = "reporte_top10_constructores"
+    titulo_grafico = "Top 10 Constructores de la Historia"
+
 else:
     print("Error: Ingrese opcion Valida")
 
 
-df_raw = pd.read_sql(query, conn).pivot_table(index="id_carrera", columns="nombre", values="puntos", aggfunc="sum")
+# 1. Ejecutar la consulta SQL (Igual que siempre)
+print(f"⏳ Extrayendo datos...")
+df_raw = pd.read_sql(query, conn)
 
-# A. Limpiar
-df_listo = tool.limpiar_datos(df_raw)
-# B. Calcular
-tabla_final, campeon_nombre, total_puntos = tool.obtener_campeon(df_listo)
+# 2. USAR TU TOOL: Primero procesamos los datos
+df_listo = tool.procesar_datos(df_raw)
+# 3. USAR TU TOOL: Luego graficamos
+tool.generar_salidas(df_listo, titulo_grafico, titulo_archivo)
 
-# C. Guardar (Automático a la carpeta export)
-tool.guardar_todo(tabla_final, titulo_archivo,f"{titulo_grafico} - Ganador: {campeon_nombre}",
-    )
-
-
-print("🏁 PROCESO TERMINADO CON ÉXITO.")
+# 4. Cerrar conexión
+conn.close()
+print("\n🏁 Proceso terminado.")
