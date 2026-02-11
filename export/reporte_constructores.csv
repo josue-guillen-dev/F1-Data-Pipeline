@@ -1,3 +1,3 @@
-id_carrera,Aston Martin,Ferrari,Red Bull
-101,18.0,25.0,25.0
-102,18.0,50.0,43.0
+id_carrera;Aston Martin;Ferrari;Red Bull
+101;18;25;25
+102;18;50;43

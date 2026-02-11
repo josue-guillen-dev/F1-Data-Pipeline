@@ -23,9 +23,8 @@ if opcion == "P":
     titulo_archivo = 'reporte_piloto'
     titulo_grafico = 'Campeonato de Pilotos'
     
-    
 elif opcion == "C":
-    query = """ SELECT resultados.id_carrera, pilotos.equipo, resultados.puntos
+    query = """ SELECT resultados.id_carrera, pilotos.equipo AS nombre, resultados.puntos
     FROM resultados
     JOIN pilotos ON resultados.id_piloto = pilotos.id_piloto """
     
@@ -34,6 +33,7 @@ elif opcion == "C":
     
 else:
     print("Error: Ingrese opcion Valida")
+
 
 df_raw = pd.read_sql(query, conn).pivot_table(index="id_carrera", columns="nombre", values="puntos", aggfunc="sum")
 
