@@ -37,7 +37,7 @@ El dato viaja de la siguiente manera:
 
 ## 📊 Resultado Visual
 
-![Gráfico del Reporte](export/reporte_final_pilotos.png)
+![Gráfico del Reporte](export/reporte_piloto.png)
 
 *(Este gráfico se actualiza automáticamente al correr el script)*
 
