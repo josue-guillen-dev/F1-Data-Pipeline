@@ -120,7 +120,7 @@ with col_graf1:
     else:
         # SI SON VARIOS AÑOS: Gráfico de líneas con puntos
         # Agrupamos por año y nombre para que la línea no se vea "quebrada" o sólida
-        df_lineas = df_plot.groupby(['year', 'nombre'])['puntos'].sum().head(5).reset_index()
+        df_lineas = df_plot.groupby(['year'])['puntos'].sum().head(5).reset_index()
         
         chart = alt.Chart(df_plot).mark_line(point=True).encode(
             x=alt.X('year:O', title='Año'),
