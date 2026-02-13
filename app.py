@@ -119,7 +119,7 @@ with col_graf1:
         ).properties(height=300)
     else:
         # SI SON VARIOS AÑOS: Gráfico de líneas con puntos
-        st.line_chart(df_plot.fillna(0))
+        st.line_chart(top_5_data.fillna(0))
     
 with col_graf2:
     st.subheader("🏆 Top 10 Escuderías")
