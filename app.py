@@ -105,7 +105,7 @@ col_graf1, col_graf2 = st.columns(2)
 with col_graf1:
     st.subheader("📈 Top 5 Pilotos")
     # 1. Obtenemos el Top 5 ordenado
-    top_5_data = df_filtrado.groupby('nombre')['puntos'].sum().sort_values(ascending=False).head(10).reset_index()
+    top_5_data = df_filtrado.groupby('nombre')['puntos'].sum().sort_values(ascending=False).head(5).reset_index()
     top_5_nombres = top_5_data['nombre'].tolist()
     
     # 2. Filtramos para el gráfico
