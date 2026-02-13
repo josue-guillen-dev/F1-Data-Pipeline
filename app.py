@@ -120,12 +120,9 @@ with col_graf1:
     else:
         # SI SON VARIOS AÑOS: Gráfico de líneas con puntos
         chart = alt.Chart(df_plot).mark_line(point=True).encode(
-            x=alt.X('year:O', title='Año'),
-            y=alt.Y('puntos:Q', title='Puntos'),
-            color='nombre:N',
-            tooltip=['nombre', 'year', 'puntos']
+            x=alt.X('year', title='Año'),
+            y=alt.Y('puntos', title='Puntos'),
         ).properties(height=300)
-
     st.altair_chart(chart, use_container_width=True)
     
 with col_graf2:
