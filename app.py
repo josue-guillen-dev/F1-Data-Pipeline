@@ -115,7 +115,7 @@ with col_graf1:
     # Si solo hay un año, forzamos a que Streamlit lo trate como una tabla de comparación
     if len(graf1) == 1:
         # Mostramos una gráfica de barras solo para este caso, que sí se ordena y se ve bien
-        st.bar_chart(graf1.T.sort_values(by=graf1.index[0], ascending=False))
+        st.bar_chart(graf1.T.sort_values(by=graf1.index[0], ascending=False), horizontal=True)
     else:
         # Si hay más de un año, usamos tu gráfico de líneas favorito
         st.line_chart(graf1.fillna(0))
