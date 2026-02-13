@@ -116,8 +116,8 @@ with col_graf1:
     if len(df_top_5) == 1:
         # Mostramos una gráfica de barras solo para este caso, que sí se ordena y se ve bien
         df_top_5 = alt.Chart(df_top_5).mark_bar().encode(
-        x=alt.X('puntos', title='Puntos Totales'),
-        y=alt.Y('nombre', sort='-x', title=None),
+        x=alt.X('nombre', title='Puntos Totales'),
+        y=alt.Y('puntos', sort='-x', title=None),
         tooltip=['nombre', 'puntos'])
         st.altair_chart(df_top_5, use_container_width=True)
     else:
