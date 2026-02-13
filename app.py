@@ -117,8 +117,8 @@ with col_graf1:
         # Mostramos una gráfica de barras solo para este caso, que sí se ordena y se ve bien
         graf1 = alt.Chart(graf1).mark_bar().encode(
         x=alt.X('puntos', title='Puntos Totales'),
-        y=alt.Y('escuderia', sort='-x', title=None),
-        tooltip=['escuderia', 'puntos'])
+        y=alt.Y('nombre', sort='-x', title=None),
+        tooltip=['nombre', 'puntos'])
         st.altair_chart(graf1, use_container_width=True)
     else:
         # Si hay más de un año, usamos tu gráfico de líneas favorito
