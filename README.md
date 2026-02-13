@@ -1,46 +1,27 @@
-# 🏎️ F1 Data Pipeline: ETL & Análisis Automatizado
+# 🏎️ F1 Historic Dashboard: Análisis de 70 Años de Datos
 
-> **Estado:** Completado v1.0
-> **Rol:** Data Analyst / Data Engineer Junior
+### 📋 Descripción
+Herramienta interactiva de Inteligencia de Negocios (BI) desarrollada para analizar el rendimiento histórico de la Fórmula 1. Utiliza una base de datos SQL procesada mediante un pipeline ETL propio para visualizar estadísticas de pilotos, escuderías y temporadas desde 1950 hasta la actualidad.
 
-## 📋 Descripción del Proyecto
-Este proyecto simula un entorno de **Ingeniería de Datos real**.
-El objetivo fue construir un **Pipeline ETL (Extract, Transform, Load)** automatizado que:
-1.  **Extrae** resultados históricos de Fórmula 1 desde una base de datos SQL.
-2.  **Transforma** y limpia los datos usando Python (Pandas), eliminando errores y nulos.
-3.  **Carga** los resultados generando reportes de negocio visuales automáticamente.
+### 🚀 Funcionalidades Principales
+* **KPIs Dinámicos:** Cálculo en tiempo real de puntos totales, carreras y métricas de rendimiento.
+* **Filtros en Cascada:** Selección inteligente de Temporada -> Nacionalidad -> Pilotos -> Escuderías.
+* **Visualización Comparativa:**
+    * Evolución temporal de pilotos (Line Chart).
+    * Ranking de Escuderías ordenado por rendimiento (Bar Chart horizontal).
+* **Data Cleaning:** Algoritmos de limpieza para normalizar nacionalidades y corregir inconsistencias históricas.
 
-El sistema reemplaza el análisis manual en Excel por un script ejecutable que estandariza la calidad de los datos.
+### 🛠️ Tecnologías Utilizadas
+* **Python:** Lenguaje principal.
+* **Streamlit:** Framework para el despliegue de la Web App.
+* **Pandas:** Manipulación y limpieza de datos (ETL).
+* **Altair:** Visualización de datos avanzada.
+* **SQLite:** Gestión de base de datos relacional.
 
-## ⚙️ ¿Cómo funciona el flujo?
-El dato viaja de la siguiente manera:
-`[Base de Datos SQL] --> [Script de Python] --> [Reporte Final (Excel + PNG)]`
+### 📂 Estructura del Proyecto
+* `app.py`: Código fuente del Dashboard.
+* `setup_db.py`: Script ETL para la creación de la base de datos.
+* `data/`: Contiene la base de datos SQLite y los archivos fuente CSV.
 
-## 🚀 Funcionalidades Clave
-* **Modularización:** Código separado en lógica de negocio (`f1_tools.py`) y ejecución (`main.py`) para ser escalable.
-* **Conexión SQL Dinámica:** Consultas adaptables según la elección del usuario (Pilotos vs. Constructores).
-* **Limpieza Automatizada:** Tratamiento de valores nulos (`NaN`) y conversión de tipos de datos (Casting).
-* **Exportación Inteligente:** Los archivos se guardan automáticamente en carpetas organizadas.
-
-## 🛠️ Tecnologías Usadas
-* **Lenguaje:** Python 3.10+
-* **Librerías:** Pandas, Matplotlib, SQLite3.
-* **Base de Datos:** SQLite / SQL Standard.
-* **Control de Versiones:** Git.
-
-## 📂 Estructura del Proyecto
-* `data/`: Fuente de verdad (DB y CSVs crudos).
-* `export/`: Destino de reportes generados.
-* `f1_tools.py`: Módulo de herramientas (Funciones ETL).
-* `main.py`: Script principal.
-* `README.md`: Documentación.
-
-## 📊 Resultado Visual
-
-![Gráfico del Reporte](export/reporte_top10_pilotos.png)
-![Gráfico del Reporte](export/reporte_top10_constructores.png)
-
-*(Estos gráficos se actualizan automáticamente al correr el script)*
-
----
-**Autor:** Josué - Analista de Datos en formación 🦁
+### 👨‍💻 Autor
+ Josue - Analista de Datos en formación 🦁
