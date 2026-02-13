@@ -125,7 +125,7 @@ with col_graf1:
         chart = alt.Chart(df_lineas).mark_line(point=True).encode(
             x=alt.X('year:O', title='Año'),
             y=alt.Y('puntos:Q', title='Puntos'),
-            color='nombre:N',
+            color=alt.Color('nombre:N', legend=None),
             tooltip=['nombre', 'year', 'puntos']
         ).properties(height=300)
 
