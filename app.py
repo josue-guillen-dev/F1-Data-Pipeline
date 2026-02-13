@@ -107,18 +107,18 @@ with col_graf1:
     # 1. Identificamos a los 5 mejores pilotos DEL FILTRO ACTUAL
     top_5_pilotos = df_filtrado.groupby('nombre')['puntos'].sum().sort_values(ascending=False).head(5).index
     # 1. Filtramos y nos quedamos SOLO con los nombres y el año
-    # 1. Filtramos los datos (Esto ya lo tienes)
     df_top_5 = df_filtrado[df_filtrado['nombre'].isin(top_5_pilotos)]
-
     # 2. Creamos la tabla pivote (Como la tenías originalmente)
     graf1 = df_top_5.pivot_table(index='year', columns='nombre', values='puntos', aggfunc='sum')
-
     # 3. EL TRUCO PARA LA WEB: Llenar los huecos vacíos con 0
-    # Esto ayuda a Streamlit Cloud a entender mejor la línea
-    graf1 = graf1.fillna(0)
-
-    # 4. Volvemos a tu gráfico favorito
-    st.line_chart(graf1)
+    # --- EL TRUCO PARA QUE SE VEA EN LA WEB ---
+    # Si solo hay un año, forzamos a que Streamlit lo trate como una tabla de comparación
+    if len(graf1) == 1:
+        # Mostramos una gráfica de barras solo para este caso, que sí se ordena y se ve bien
+        st.bar_chart(graf1.T.sort_values(by=graf1.index[0], ascending=False))
+    else:
+        # Si hay más de un año, usamos tu gráfico de líneas favorito
+        st.line_chart(graf1.fillna(0))
     
 with col_graf2:
     st.subheader("🏆 Top 10 Escuderías")
