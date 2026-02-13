@@ -104,23 +104,30 @@ col_graf1, col_graf2 = st.columns(2)
 
 with col_graf1:
     st.subheader("📈 Top 5 Pilotos")
-    # 1. Identificamos a los 5 mejores pilotos DEL FILTRO ACTUAL
-    top_5_pilotos = df_filtrado.groupby('nombre')['puntos'].sum().sort_values(ascending=False).head(10)
-    df_top_5 = top_5_pilotos.index
-    # 1. Filtramos y nos quedamos SOLO con los nombres y el año
-    df_top_5 = df_filtrado[df_filtrado['nombre'].isin(df_top_5)]
-    # 2. Creamos la tabla pivote (Como la tenías originalmente)
-    graf1 = df_top_5.pivot_table(index='year', columns='nombre', values='puntos', aggfunc='sum')
-    # --- EL TRUCO PARA QUE SE VEA EN LA WEB ---
-    # Si solo hay un año, forzamos a que Streamlit lo trate como una tabla de comparación
-    if len(graf1) == 1:
-        # Extraemos la única fila (el año seleccionado) y la ordenamos de mayor a menor
-        datos_ordenados = graf1.loc[graf1.index[0]].sort_values(ascending=True)
-        # Mostramos una gráfica de barras solo para este caso, que sí se ordena y se ve bien
-        st.bar_chart(graf1.T.sort_values(by=graf1.index[0], ascending=False), horizontal=True)
+    # 1. Obtenemos el Top 5 ordenado
+    top_5_data = df_filtrado.groupby('nombre')['puntos'].sum().sort_values(ascending=False).head(10).reset_index()
+    top_5_nombres = top_5_data['nombre'].tolist()
+    
+    # 2. Filtramos para el gráfico
+    df_plot = df_filtrado[df_filtrado['nombre'].isin(top_5_nombres)]
+    
+    if len(df_plot['year'].unique()) == 1:
+        # SI ES UN SOLO AÑO: Gráfico de barras horizontales ORDENADO
+        chart = alt.Chart(top_5_data).mark_bar().encode(
+            x=alt.X('puntos:Q', title='Puntos'),
+            y=alt.Y('nombre:N', sort='-x', title='Piloto'), # El '-x' es el truco para ordenar
+            color=alt.Color('nombre:N', legend=None)
+        ).properties(height=300)
     else:
-        # Si hay más de un año, usamos tu gráfico de líneas favorito
-        st.line_chart(graf1.fillna(0))
+        # SI SON VARIOS AÑOS: Gráfico de líneas con puntos
+        chart = alt.Chart(df_plot).mark_line(point=True).encode(
+            x=alt.X('year:O', title='Año'),
+            y=alt.Y('puntos:Q', title='Puntos'),
+            color='nombre:N',
+            tooltip=['nombre', 'year', 'puntos']
+        ).properties(height=300)
+
+    st.altair_chart(chart, use_container_width=True)
     
 with col_graf2:
     st.subheader("🏆 Top 10 Escuderías")
