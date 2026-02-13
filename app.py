@@ -119,7 +119,14 @@ with col_graf1:
         ).properties(height=300)
     else:
         # SI SON VARIOS AÑOS: Gráfico de líneas con puntos
-        st.line_chart(top_5_data)
+        chart = alt.Chart(df_plot).mark_line(point=True).encode(
+            x=alt.X('year:O', title='Año'),
+            y=alt.Y('puntos:Q', title='Puntos'),
+            color='nombre:N',
+            tooltip=['nombre', 'year', 'puntos']
+        ).properties(height=300)
+
+    st.altair_chart(chart, use_container_width=True)
     
 with col_graf2:
     st.subheader("🏆 Top 10 Escuderías")
