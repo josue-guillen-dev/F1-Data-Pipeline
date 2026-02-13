@@ -105,7 +105,7 @@ col_graf1, col_graf2 = st.columns(2)
 with col_graf1:
     st.subheader("📈 Top 5 Pilotos")
     # 1. Obtenemos el Top 5 ordenado
-    top_5_data = df_filtrado.groupby('nombre')['puntos'].sum().sort_values(ascending=False).head(10).reset_index()
+    top_5_data = df_filtrado.groupby('nombre')['puntos'].sum().sort_values(ascending=False).head(5).reset_index()
     top_5_nombres = top_5_data['nombre'].tolist()
     
     # 2. Filtramos para el gráfico
@@ -114,8 +114,8 @@ with col_graf1:
     if len(df_plot['year'].unique()) == 1:
         # SI ES UN SOLO AÑO: Gráfico de barras horizontales ORDENADO
         chart = alt.Chart(top_5_data).mark_bar().encode(
-            x=alt.X('puntos:Q', title='Puntos'),
-            y=alt.Y('nombre:N', sort='-x', title='Piloto'), # El '-x' es el truco para ordenar
+            x=alt.X('puntos', title='Puntos'),
+            y=alt.Y('nombre', sort='-x', title=None), # El '-x' es el truco para ordenar
             color=alt.Color('nombre:N', legend=None)
         ).properties(height=300)
     else:
