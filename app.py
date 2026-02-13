@@ -106,10 +106,18 @@ with col_graf1:
     st.subheader("📈 Top 5 Pilotos")
     # 1. Identificamos a los 5 mejores pilotos DEL FILTRO ACTUAL
     top_5_pilotos = df_filtrado.groupby('nombre')['puntos'].sum().sort_values(ascending=False).head(5).index
-    # 2. Filtramos el dataframe para dejar solo a esos 5
+    # 1. Filtramos y nos quedamos SOLO con los nombres y el año
+    # 1. Filtramos los datos (Esto ya lo tienes)
     df_top_5 = df_filtrado[df_filtrado['nombre'].isin(top_5_pilotos)]
-    # 3. Hacemos la tabla pivot y mostramos el grafico
-    graf1 = df_top_5.pivot_table(index="year", columns="nombre", values="puntos", aggfunc="sum")
+
+    # 2. Creamos la tabla pivote (Como la tenías originalmente)
+    graf1 = df_top_5.pivot_table(index='year', columns='nombre', values='puntos', aggfunc='sum')
+
+    # 3. EL TRUCO PARA LA WEB: Llenar los huecos vacíos con 0
+    # Esto ayuda a Streamlit Cloud a entender mejor la línea
+    graf1 = graf1.fillna(0)
+
+    # 4. Volvemos a tu gráfico favorito
     st.line_chart(graf1)
     
 with col_graf2:
