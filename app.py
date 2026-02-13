@@ -105,7 +105,7 @@ col_graf1, col_graf2 = st.columns(2)
 with col_graf1:
     st.subheader("📈 Top 5 Pilotos")
     # 1. Identificamos a los 5 mejores pilotos DEL FILTRO ACTUAL
-    top_5_pilotos = df_filtrado.groupby('nombre')['puntos'].sum().sort_values(ascending=False).head(5).index
+    top_5_pilotos = df_filtrado.groupby('nombre')['puntos'].sum().sort_values(ascending=False).head(10).index
     # 1. Filtramos y nos quedamos SOLO con los nombres y el año
     df_top_5 = df_filtrado[df_filtrado['nombre'].isin(top_5_pilotos)]
     # 2. Creamos la tabla pivote (Como la tenías originalmente)
@@ -115,7 +115,11 @@ with col_graf1:
     # Si solo hay un año, forzamos a que Streamlit lo trate como una tabla de comparación
     if len(graf1) == 1:
         # Mostramos una gráfica de barras solo para este caso, que sí se ordena y se ve bien
-        st.bar_chart(graf1.T.sort_values(by=graf1.index[0], ascending=True), horizontal=True)
+        graf1 = alt.Chart(graf1).mark_bar().encode(
+        x=alt.X('puntos', title='Puntos Totales'),
+        y=alt.Y('escuderia', sort='-x', title=None),
+        tooltip=['escuderia', 'puntos'])
+        st.altair_chart(graf1, use_container_width=True)
     else:
         # Si hay más de un año, usamos tu gráfico de líneas favorito
         st.line_chart(graf1.fillna(0))
