@@ -40,39 +40,40 @@ df['nacionalidad'] = df['nacionalidad'].replace(correcciones_nacionalidad)
 st.title("🏎️ F1 Histórico: Panel de Control")
 st.write("Explora los resultados de toda la historia de la Fórmula 1")
 
+# 1. Copia base
 df_filtrado = df.copy()
-
-lista_anio = sorted(df_filtrado["year"].unique(), reverse=True)
-lista_piloto = sorted(df_filtrado["nombre"].unique())
-lista_constructores = sorted(df_filtrado["escuderia"].unique())
-lista_nacionalidad = sorted(df_filtrado["nacionalidad"].unique())
 
 # creamos filtros arriba de todo
 (col1,col2,col3,col4,) = st.columns(4)
 
+# --- FILTRO 1: AÑO (El "Jefe" de los filtros) ---
 with col1:
+    lista_anio = sorted(df['year'].unique(), reverse=True)
     select_anio = st.multiselect("📅 Temporada", lista_anio)
 
 if select_anio:
     df_filtrado = df_filtrado[df_filtrado["year"].isin(select_anio)]
-lista_nacionalidad_dinamica= sorted(df_filtrado["nacionalidad"].unique())
 
+# --- FILTRO 2: NACIONALIDAD (Depende del Año) ---
 with col2:
-    select_nationality = st.multiselect("Nacionalidad", lista_nacionalidad_dinamica)
+    lista_nacionalidad = sorted(df_filtrado['nacionalidad'].unique())
+    select_nationality = st.multiselect("🌍 Nacionalidad", lista_nacionalidad)
     
 if select_nationality:
     df_filtrado = df_filtrado[df_filtrado['nacionalidad'].isin(select_nationality)]
-lista_piloto_dinamica = sorted(df_filtrado['nombre'].unique())
 
+# --- FILTRO 3: PILOTO (Depende de Año + Nacionalidad) ---
 with col3:
-    select_piloto = st.multiselect("Pilotos", lista_piloto_dinamica)
+    lista_piloto = sorted(df_filtrado['nombre'].unique())
+    select_piloto = st.multiselect("🏎️ Pilotos", lista_piloto)
 
 if select_piloto:
     df_filtrado = df_filtrado[df_filtrado['nombre'].isin(select_piloto)]
-lista_constructor_dinamica = sorted(df_filtrado["escuderia"].unique())
 
+# --- FILTRO 4: ESCUDERÍA (Depende de todo lo anterior) ---
 with col4:
-    select_constructor = st.multiselect("🛠️ Escudería", lista_constructor_dinamica)
+    lista_constructores = sorted(df_filtrado["escuderia"].unique())
+    select_constructor = st.multiselect("🛠️ Escudería", lista_constructores)
     
 if select_constructor:
     df_filtrado= df_filtrado[df_filtrado["escuderia"].isin(select_constructor)]    
