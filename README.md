@@ -1,5 +1,9 @@
 # 🏎️ F1 Historic Dashboard: Análisis de 70 Años de Datos
 
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://f1-data-dashboard.streamlit.app/)
+
+![Vista Previa del Dashboard](dashboard_preview.png)
+
 ### 📋 Descripción
 Herramienta interactiva de Inteligencia de Negocios (BI) desarrollada para analizar el rendimiento histórico de la Fórmula 1. Utiliza una base de datos SQL procesada mediante un pipeline ETL propio para visualizar estadísticas de pilotos, escuderías y temporadas desde 1950 hasta la actualidad.
 
@@ -23,5 +27,16 @@ Herramienta interactiva de Inteligencia de Negocios (BI) desarrollada para anali
 * `setup_db.py`: Script ETL para la creación de la base de datos.
 * `data/`: Contiene la base de datos SQLite y los archivos fuente CSV.
 
+### 💻 Cómo ejecutar este proyecto localmente
+Si deseas clonar y correr este dashboard en tu computadora, usa estos comandos en tu terminal:
+
+```bash
+git clone https://github.com/josue-guillen-dev/F1-Data-Pipeline
+pip install -r requirements.txt
+streamlit run app.py 
+```
+
 ### 👨‍💻 Autor
- Josue - Analista de Datos en formación 🦁
+ Josue Guillen - Analista de Datos en formación 🦁
+ ---
+*Este proyecto es parte de mi portafolio profesional de Análisis de Datos.*
