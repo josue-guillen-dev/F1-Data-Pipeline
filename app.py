@@ -4,42 +4,47 @@ import matplotlib.pyplot as plt
 import streamlit as st
 import altair as alt
 
-conn = sqlite3.connect("data/f1_proyecto.db")
+# --- CONFIGURACIÓN DE PÁGINA (Opcional, pero se ve mejor) ---
+st.set_page_config(page_title="F1 Dashboard", page_icon="🏎️", layout="wide")
 
-query = """ 
-    SELECT ra.raceId, ra.year, ra.name AS race_name, d.nationality AS nacionalidad,  d.forename || ' ' || d.surname AS nombre, c.name AS escuderia , SUM(r.points) AS puntos, MIN(r.positionOrder) AS mejor_posicion
-    FROM results r 
-    JOIN races ra ON r.raceId = ra.raceID
-    JOIN drivers d ON r.driverId = d.driverId
-    JOIN constructors c ON r.constructorId = c.constructorId
-    GROUP BY ra.year , ra.name, nombre, escuderia
-    ORDER BY ra.year DESC
-    """
+# --- 1. FUNCIÓN DE CARGA DE DATOS OPTIMIZADA (CACHÉ) ---
+@st.cache_data(ttl=3600)# Se actualiza cada 1 hora automáticamente
+def cargar_datos_f1():
+    conn = sqlite3.connect("data/f1_proyecto.db")
 
-df = pd.read_sql(query, conn)
-# Convertimos el año a texto para que el gráfico no use decimales
-df["year"] = df["year"].astype(str)
-conn.close()
+    query = """ 
+        SELECT ra.raceId, ra.year, ra.name AS race_name, d.nationality AS nacionalidad,  d.forename || ' ' || d.surname AS nombre, c.name AS escuderia , SUM(r.points) AS puntos, MIN(r.positionOrder) AS mejor_posicion
+        FROM results r 
+        JOIN races ra ON r.raceId = ra.raceID
+        JOIN drivers d ON r.driverId = d.driverId
+        JOIN constructors c ON r.constructorId = c.constructorId
+        GROUP BY ra.year , ra.name, nombre, escuderia
+        ORDER BY ra.year DESC
+        """
 
-# --- LIMPIEZA DE DATOS (Data Cleaning) ---
-# Creamos un diccionario: { "Nombre Sucio" : "Nombre Limpio" }
-correcciones_nacionalidad = {
-    'Argentine': 'Argentine',
-    'Argentinian ': 'Argentine',
-    'Argentine-Italian': 'Argentine', # Simplificamos duales
-    'American': 'USA',
-    'American-Italian': 'USA',
-    'British': 'UK' 
-    # Puedes agregar más aquí si encuentras otros errores
-}
+    df = pd.read_sql(query, conn)
+    conn.close()
+    # Convertimos el año a texto para que el gráfico no use decimales
+    df["year"] = df["year"].astype(str)
 
-# Aplicamos el reemplazo en la columna 'nacionalidad'
-# Si el nombre no está en el diccionario, lo deja tal cual.
-df['nacionalidad'] = df['nacionalidad'].replace(correcciones_nacionalidad)
+    # --- LIMPIEZA DE DATOS (Data Cleaning) ---
+    # Creamos un diccionario: { "Nombre Sucio" : "Nombre Limpio" }
+    correcciones_nacionalidad = {
+        'Argentine': 'Argentine',
+        'Argentinian ': 'Argentine',
+        'Argentine-Italian': 'Argentine', # Simplificamos duales
+        'American': 'USA',
+        'American-Italian': 'USA',
+        'British': 'UK' }
+    # Aplicamos el reemplazo en la columna 'nacionalidad'
+    # Si el nombre no está en el diccionario, lo deja tal cual.
+    df['nacionalidad'] = df['nacionalidad'].replace(correcciones_nacionalidad)
 
+    return df
+    
+df = cargar_datos_f1()
 st.title("🏎️ F1 Histórico: Panel de Control")
 st.write("Explora los resultados de toda la historia de la Fórmula 1")
-
 # 1. Copia base
 df_filtrado = df.copy()
 
