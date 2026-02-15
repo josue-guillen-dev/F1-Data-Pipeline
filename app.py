@@ -179,7 +179,7 @@ with tab1:
     # Un "Expander" es una caja que se abre y cierra. Ahorra espacio.
     with st.expander("🔎 Ver Datos Detallados (Click para desplegar)"):
         # Mostramos la tabla, pero ocultamos el índice feo de pandas
-        st.dataframe(df_filtrado, use_container_width=True, hide_index=True)
+        st.dataframe(df_filtrado[['year','race_name','nacionalidad','nombre','escuderia','positionOrder','puntos']], use_container_width=True, hide_index=True)
 
 
 
