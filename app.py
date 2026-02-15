@@ -12,7 +12,7 @@ def cargar_datos_f1():
     conn = sqlite3.connect("data/f1_proyecto.db")
 
     query = """ 
-            SELECT ra.raceId, ra.year, ra.name AS race_name, d.nationality AS nacionalidad,  d.forename || ' ' || d.surname AS nombre, c.name AS escuderia , r.grid, r.positionOrder, r.points AS puntos
+            SELECT ra.raceId, d.driverId, ra.year, ra.name AS race_name, d.nationality AS nacionalidad,  d.forename || ' ' || d.surname AS nombre, c.name AS escuderia , r.grid, r.positionOrder, r.points AS puntos
             FROM results r 
             JOIN races ra ON r.raceId = ra.raceID
             JOIN drivers d ON r.driverId = d.driverId
@@ -83,11 +83,19 @@ if select_constructor:
     
 
 #wiht tab 2  Análisis de Rendimiento"
+
+# 1. Calculamos cuántos pilotos corrieron en CADA carrera
+# (Agrupa por carrera y cuenta los IDs de los pilotos)
+df_filtrado['total_pilotos'] = df_filtrado.groupby('raceId')['driverId'].transform('count')
+# 2. Corregimos el Grid
+# La lógica: Si grid es 0, ponle el número total de pilotos de ESA carrera. Si no, deja el grid original.
+df_filtrado['grid_real'] = df_filtrado.apply(
+    lambda row: row['total_pilotos'] if row['grid'] == 0 else row['grid'], axis=1)
 # Calculamos la diferencia (Posición salida - Posición llegada)
-df_filtrado['diferencia'] = df_filtrado['grid'] - df_filtrado['positionOrder']
+df_filtrado['diferencia'] = df_filtrado['grid_real'] - df_filtrado['positionOrder']
 # Aplicamos filtro: Solo las que son mayores a 0 (Remontadas reales)
 # Y filtramos grid > 0 porque grid=0 significa que salió desde el Pit Lane o error
-df_remontada = df_filtrado[(df_filtrado['diferencia'] > 0) & (df_filtrado['grid'] > 0)]
+df_remontada = df_filtrado[(df_filtrado['diferencia'] > 0)]
 
 
 
@@ -145,7 +153,7 @@ with tab1:
             df_lineas = df_plot.groupby(['year', 'nombre'])['puntos'].sum().reset_index()
             
             chart = alt.Chart(df_lineas).mark_line(point=True).encode(
-                x=alt.X('year:O', title='Año'),
+                x=alt.X('year:O', title='Año' ),
                 y=alt.Y('puntos:Q', title='Puntos'),
                 color=alt.Color('nombre:N', legend=None),
                 tooltip=['nombre', 'year', 'puntos']
@@ -180,22 +188,58 @@ with tab2:
     st.header("🎯 Análisis de Rendimiento: Las Grandes Remontadas")
     st.write("Este análisis muestra únicamente los casos donde un piloto terminó en una mejor posición de la que comenzó.")
     
+    
+    
+    
+    
+    
+    
+    # Metricas claves (kpi)
+
+    kpi3 = st.columns(1)[0]
+
+    # Valores iniciales (plan B por si no hay datos)
+    #posicion_totales = 0
+    #piloto_mas_puntos = "N/A"
+
+    # Solo calculamos si el filtro trajo algo
+    if not df_remontada.empty:
+        #mejor_remontada = df_filtrado["raceId"].nunique()
+        posicion_totales = int(df_filtrado["diferencia"].sum())
+
+        # Agrupamos por nombre, sumamos diferencia, y pedimos el ID (nombre) del Máximo (.idxmax())
+        gano_mas_posiciones = df_filtrado.groupby("nombre")["diferencia"].sum().idxmax()
+
+    #kpi1.metric("🏁 Grandes Premios", carreras_totales)
+    #kpi2.metric("🏆 Puntos Totales", puntos_totales)
+    kpi3.metric("🥇 Piloto que gano mas Posiciones en la historia", gano_mas_posiciones)
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     # Slider para filtrar por cuántas posiciones remontó (opcional pero se ve muy pro)
     min_remontada = st.slider('Filtrar por minimo de posiciones ganadas: ',1,15,1)
     df_tab2 = df_filtrado[df_filtrado['diferencia'] >= min_remontada]
 
+
+    
     
     # Crear el gráfico de dispersión interactivo
     scatter = alt.Chart(df_tab2).mark_circle(size=80, opacity=0.4).encode(
-        x=alt.X('grid:Q', title='Posicion de salida (Grid)'),
+        x=alt.X('grid_real:Q', title='Posicion de salida (Grid)'),
         y=alt.Y('positionOrder:Q', title='Posicion de llegada'),
-        #xOffset=alt.datum(0.5),
         color=alt.Color('escuderia:N', title='Escuderia'),
         size=alt.Size('diferencia:Q', title='Posiciones Ganadas'),
         tooltip=[alt.Tooltip('nombre:N', title='Piloto'),
         alt.Tooltip('year:O', title='Año'),
         alt.Tooltip('race_name:N', title='Carrera'),
-        alt.Tooltip('grid:Q', title='Salió'),
+        alt.Tooltip('grid_real:Q', title='Salió'),
         alt.Tooltip('positionOrder:Q', title='Llegó'),
         alt.Tooltip('diferencia:Q', title='Ganó')]
     ).properties(height=500).interactive()
@@ -204,6 +248,6 @@ with tab2:
     st.altair_chart(scatter, use_container_width=True)
     
     st.subheader("📋 Detalle de las remontadas en el gráfico")
-    st.dataframe(df_tab2[['year', 'nombre', 'race_name', 'grid', 'positionOrder', 'diferencia']].sort_values('diferencia', ascending=False), hide_index=True)
+    st.dataframe(df_tab2[['year', 'nombre', 'race_name', 'grid_real', 'positionOrder', 'diferencia']].sort_values('diferencia', ascending=False), hide_index=True)
     
     st.info("💡 Consejo: Pasa el ratón sobre los puntos para ver los detalles del piloto y la carrera.")
